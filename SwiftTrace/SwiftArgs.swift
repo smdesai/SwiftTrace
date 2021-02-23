@@ -336,8 +336,13 @@ extension SwiftTrace {
                 position = range.upperBound
 
                 if value == nil {
-                    output += !isReturn ? type : "" 
+                    output += !isReturn ? type : ""
                     break
+                } else {
+                    // -sd-
+                    if !logActualParam {
+                        value = "sz_\(value!.count)"
+                    }
                 }
 
                 output += value!
@@ -432,7 +437,20 @@ extension SwiftTrace {
                         }
                     }
 
-                    args.append((isReturn ? "" : arg + ":") + (value ?? "(\(type))"))
+                    // -sd-
+                    var param = ""
+                    if value == nil {
+                        param = "(\(type))"
+                    } else {
+                        if logActualParam {
+                            param = "\(value!)"
+                        } else {
+                            param = "sz_\(value!.count)"
+                        }
+                    }
+
+                    args.append((isReturn ? "" : arg + ":") + param)
+//                    args.append((isReturn ? "" : arg + ":") + (value ?? "(\(type))"))
                     index += 1
                 }
 

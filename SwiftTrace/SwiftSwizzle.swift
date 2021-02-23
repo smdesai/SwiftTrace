@@ -215,7 +215,10 @@ extension SwiftTrace {
                    let decorated = entryDecorate(stack: &stack)
                    let indent = String(repeating: SwiftTrace.traceIndent,
                                        count: invocation.stackDepth)
-                   logOutput("\(subLogging() ? "\n" : "")\(indent)\(decorated)")
+//                   logOutput("\(subLogging() ? "\n" : "")\(indent)\(decorated)")
+                    // -sd-
+                    let threadId = "\(Unmanaged.passUnretained(ThreadLocal.current()).toOpaque())"
+                    addTrace(time: Swift.Int64(Date().timeIntervalSince1970 * 1_000_000), threadId: threadId, depth: invocation.stackDepth, method: decorated)
                }
            }
        }
@@ -240,16 +243,20 @@ extension SwiftTrace {
        open func onExit(stack: inout ExitStack) {
            if let invocation = invocation() {
                let elapsed = Invocation.usecTime() - invocation.timeEntered
-               if invocation.shouldDecorate && shouldTrace() {
+
+            if invocation.shouldDecorate && shouldTrace() {
                    let returnValue = exitDecorate(stack: &stack)
-                   logOutput("""
-                        \(invocation.subLogged ? """
-                            \n\(String(repeating: "  ",
-                                       count: invocation.stackDepth))<-
-                            """ : objcMethod != nil ? " ->" : "") \
-                        \(returnValue)\(String(format: SwiftTrace.timeFormat,
-                                elapsed * 1000.0))\(subLogging() ? "" : "\n")
-                        """)
+//                   logOutput("""
+//                        \(invocation.subLogged ? """
+//                            \n\(String(repeating: "  ",
+//                                       count: invocation.stackDepth))<-
+//                            """ : objcMethod != nil ? " ->" : "") \
+//                        \(returnValue)\(String(format: SwiftTrace.timeFormat,
+//                                elapsed * 1000.0))\(subLogging() ? "" : "\n")
+//                        """)
+                    // -sd-
+                    let threadId = "\(Unmanaged.passUnretained(ThreadLocal.current()).toOpaque())"
+                    updateLastElapsed(elapsed: Int(elapsed * 1000.0), threadId: threadId)
                }
                totalElapsed += elapsed
                invocationCount += 1
